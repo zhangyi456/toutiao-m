@@ -8,3 +8,10 @@ export const login = data => {
     data
   })
 }
+// 验证码发送模块
+export const sendSms = mobile => {
+  return request({
+    method: 'GET',
+    url: `/app/v1_0/sms/codes/${mobile}`
+  })
+}

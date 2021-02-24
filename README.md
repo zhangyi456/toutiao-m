@@ -8,6 +8,8 @@
 
 **4.移动端REM的适配（**使用 [lib-flexible]动态设置 REM 基准值（html 标签的字体大小**）**
 
+任何配置文件的更改都需要重启服务器
+
 4.1   npm i amfe-flexible
 
 4.2  在main.js 中引入 import 'amfe-flexible'
