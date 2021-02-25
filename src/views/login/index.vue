@@ -27,7 +27,7 @@
         <i slot="left-icon" class="iconfont icon-yanzhengma"></i>
         <template #button>
           <!-- 这里的time表示的就是  需要倒计时的时间 这里的format表示的是单位-->
-          <van-count-down v-if="isCountDownShow" :time="1000*5" format="ss s" @finish='isCountDownShow=false'/>
+          <van-count-down v-if="isCountDownShow" :time="1000*60" format="ss s" @finish='isCountDownShow=false'/>
           <van-button
           v-else
             class="send-sms-btn"
@@ -95,14 +95,16 @@ export default {
       })
       // 提交表单请求登录
       try {
-        const res = await login(user)
-        console.log('登录成功', res)
+        const { data } = await login(user)
+        // console.log(user)
+        // console.log(res.data)
+        this.$store.commit('setUser', data.data)
         this.$toast.success('登录成功')
       } catch (err) {
         if (err.response.status === 400) {
           this.$toast.fail('手机号或者验证码错误')
         } else {
-          this.$oast.fail('登录失败，请稍后再试')
+          this.$toast.fail('登录失败，请稍后再试')
         }
       }
       // 根据请求结果做后续操作
