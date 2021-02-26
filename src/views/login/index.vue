@@ -2,7 +2,8 @@
   <div class="login-container">
     <!-- 导航栏 -->
     <van-nav-bar class="page-nav-bar" title="登录" >
-      <van-icon slot="left" name="cross" @click="$router.back()"/>
+      <!-- 这里为说明要写个$route.query.redirect主要是为了 后面的back属性在返回时出现BUG -->
+      <van-icon v-if="$route.query.redirect" slot="left" name="cross" @click="$router.back()"/>
     </van-nav-bar>
     <!-- /导航栏 -->
 
@@ -102,6 +103,7 @@ export default {
         // console.log(res.data)
         this.$store.commit('setUser', data.data)
         this.$toast.success('登录成功')
+        this.$router.push(this.$route.query.redirect || '/my')
       } catch (err) {
         if (err.response.status === 400) {
           this.$toast.fail('手机号或者验证码错误')
@@ -140,9 +142,6 @@ export default {
 
 <style scoped lang="less">
 .login-container {
-  .van-icon {
-    color: #fff;
-  }
   .iconfont {
     font-size: 37px;
   }
