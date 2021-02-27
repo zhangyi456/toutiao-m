@@ -22,3 +22,10 @@ export const getUserInfo = mobile => {
     url: '/app/v1_0/user'
   })
 }
+// 获取频道列表的信息
+export const getUserChannel = mobile => {
+  return request({
+    method: 'GET',
+    url: '/app/v1_0/user/channels'
+  })
+}
