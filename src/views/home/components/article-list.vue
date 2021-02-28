@@ -1,3 +1,4 @@
+/* eslint-disable no-tabs */
 <template>
   <div class="article-list">
     <!--
@@ -20,21 +21,40 @@
         + 在每次请求完毕后，需要手动将 loading 设置为 false，表示本次加载结束
         + 所有数据加载结束，finished 为 true，此时不会触发 load 事件
      -->
-    <van-list
-      v-model="loading"
-      :finished="finished"
-      finished-text="没有更多了"
-      @load="onLoad"
+    <van-pull-refresh
+      v-model="isLoading"
+      success-text="刷新成功"
+      @refresh="onRefresh"
     >
-      <van-cell v-for="(article, index) in list" :key="index" :title="article.title" />
-    </van-list>
+      <van-list
+        v-model="loading"
+        :finished="finished"
+        finished-text="没有更多了"
+        @load="onLoad"
+      >
+        <article-item
+          v-for="(article, index) in list"
+          :key="index"
+          :article="article"
+        />
+        <!-- <van-cell
+          v-for="(article, index) in list"
+          :key="index"
+          :title="article.title"
+        /> -->
+      </van-list>
+    </van-pull-refresh>
   </div>
 </template>
 
 <script>
 import { getArticles } from '@/api/article'
+import ArticleItem from '@/components/article-item'
 export default {
   name: 'ArticleList',
+  components: {
+    ArticleItem
+  },
   props: {
     // 这里主要是将获取的频道的值传过来，比如说通过ID 去找文章页面等等
     channel: {
@@ -42,16 +62,18 @@ export default {
       required: true
     }
   },
-  data () {
+  data() {
     return {
       list: [], // 存储数据列表的数组
       loading: false, // 控制加载中列表loading的状态
       finished: false, // 是控制数据加载结束的状态
+      isLoading: false,
       timestamp: null
     }
   },
   methods: {
-    async onLoad () {
+    // 上拉加载的方法
+    async onLoad() {
       try {
         // 1.获取数据列表
         const { data } = await getArticles({
@@ -75,11 +97,34 @@ export default {
       } catch (err) {
         this.$toast('获取文章失败，请稍后再试')
       }
+    },
+    //  下拉刷新的方法
+    async onRefresh() {
+      try {
+        // 1.获取数据列表
+        const { data } = await getArticles({
+          channel_id: this.channel.id, // 频道 id
+          timestamp: Date.now(), // 时间戳，请求新的推荐数据传当前的时间戳，请求历史推荐传指定的时间戳
+          with_top: 1 // 是否包含置顶，进入页面第一次请求时要包含置顶文章，1-包含置顶，0-不包含
+        })
+        // 2.把数据渲染到列表中
+        const { results } = data.data
+        this.list.push(...results)
+        // 设置渲染结束的状态
+        this.isLoading = false
+        // 没有数据了，这时候就要设置加载数据的结束的状态
+        this.finished = false
+      } catch (err) {
+        this.toast('刷新数据失败，请稍后再试')
+      }
     }
   }
 }
 </script>
 
 <style lang="less" scoped>
-
+.article-list {
+  overflow-y: auto;
+  height: 79vh;
+}
 </style>
