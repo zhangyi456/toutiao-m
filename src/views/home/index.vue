@@ -42,8 +42,12 @@
       position="bottom"
       :style="{ height: '100%' }"
     >
-     <channel-edit />
-     <!-- 这里要写双标签 -->
+      <channel-edit
+        :userchannel="channels"
+        :active="active"
+        @check-channel="onCheckChannel"
+      />
+      <!-- 这里要写双标签 -->
     </van-popup>
     <!-- /弹出层 -->
   </div>
@@ -53,6 +57,8 @@
 import { getUserChannel } from '@/api/user'
 import articleList from './components/article-list'
 import channelEdit from './components/channel-edit'
+import { getItem } from '@/utils/storage'
+import { mapState } from 'vuex'
 export default {
   name: 'homer',
   components: {
@@ -69,14 +75,31 @@ export default {
   created() {
     this.loadChannel()
   },
+  computed: {
+    ...mapState(['user'])
+  },
   methods: {
     async loadChannel() {
       try {
-        const { data } = await getUserChannel()
-        this.channels = data.data.channels
+        if (this.user) {
+          const { data } = await getUserChannel()
+          this.channels = data.data.channels
+        } else {
+          this.channels = getItem('TOUTIAO_CHANNELS')
+          if (this.channels) {
+            return
+          } else {
+            const { data } = await getUserChannel()
+            this.channels = data.data.channels
+          }
+        }
       } catch (err) {
         this.$toast('获取频道数据失败，请稍后再试')
       }
+    },
+    onCheckChannel(index) {
+      this.active = index
+      this.isChannelEditShow = false
     }
   }
 }
