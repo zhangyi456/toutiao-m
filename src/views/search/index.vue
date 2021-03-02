@@ -1,7 +1,7 @@
 <template>
   <div class="search-contanier">
     <!-- 搜索栏 -->
-    <form action="/">
+    <form class="search-form" action="/">
       <van-search
         v-model="searchText"
         show-action
@@ -62,12 +62,17 @@ export default {
 
 <style scoped lang="less">
 .search-contanier {
+    padding-top: 108px;
   .van-search__action {
     color: #fff;
   }
-  // .van-search{
+.search-form {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
 
-  //   overflow-y:auto;
-  // }
+}
 }
 </style>

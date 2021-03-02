@@ -1,13 +1,19 @@
 <template>
   <div class="searchResult">
     <van-list
-    class="searchResultList"
+      class="searchResultList"
       v-model="loading"
       :finished="finished"
+      :error.sync="error"
+      error-text="请求失败，点击重新加载"
       finished-text="没有更多了"
       @load="onLoad"
     >
-      <van-cell v-for="(article, index) in list" :key="index" :title="article.title" />
+      <van-cell
+        v-for="(article, index) in list"
+        :key="index"
+        :title="article.title"
+      />
     </van-list>
   </div>
 </template>
@@ -29,7 +35,8 @@ export default {
       loading: false,
       finished: false,
       page: 1,
-      per_page: 20
+      per_page: 20,
+      error: false
     }
   },
   computed: {},
@@ -59,7 +66,10 @@ export default {
           this.finished = true
         }
       } catch (err) {
-        this.$toast('获取搜索结果失败，请稍后重试')
+        // 展示加载失败的提示状态
+        this.error = true
+        // 这时候也要的结束loading的状态
+        this.loading = false
       }
     }
   }
@@ -67,8 +77,8 @@ export default {
 </script>
 
 <style scoped lang="less">
-.searchResult{
-  .searchResultList{
+.searchResult {
+  .searchResultList {
     height: 79vh;
     overflow-y: auto;
   }
