@@ -1,50 +1,76 @@
 <template>
-  <div ><van-list
+  <div class="searchResult">
+    <van-list
+    class="searchResultList"
       v-model="loading"
       :finished="finished"
       finished-text="没有更多了"
       @load="onLoad"
     >
-      <van-cell v-for="item in list" :key="item" :title="item" />
-    </van-list></div>
+      <van-cell v-for="(article, index) in list" :key="index" :title="article.title" />
+    </van-list>
+  </div>
 </template>
 
 <script>
+import { getSearchResults } from '@/api/search'
 export default {
   name: 'SearchResult',
   components: {},
-  props: {},
-  data () {
+  props: {
+    searchText: {
+      type: String,
+      required: true
+    }
+  },
+  data() {
     return {
       list: [],
       loading: false,
-      finished: false
+      finished: false,
+      page: 1,
+      per_page: 20
     }
   },
   computed: {},
   watch: {},
-  created () {},
-  mounted () {},
+  created() {},
+  mounted() {},
   methods: {
-    onLoad() {
-    // 异步更新数据
-    // setTimeout 仅做示例，真实场景中一般为 ajax 请求
-      setTimeout(() => {
-        for (let i = 0; i < 10; i++) {
-          this.list.push(this.list.length + 1)
-        }
-
-        // 加载状态结束
+    async onLoad() {
+      try {
+        // 1.获取数据
+        const { data } = await getSearchResults({
+          page: this.page, // 页码值
+          per_page: this.per_page, // 当前展示数据条数
+          q: this.searchText // 关键字
+        })
+        // 2.渲染数据
+        const { results } = data.data
+        this.list.push(...results)
+        // 3.结束loading状态
         this.loading = false
-
-        // 数据全部加载完成
-        if (this.list.length >= 40) {
+        // 4。判断是否还有数据
+        if (results.length) {
+          // 如果有这更新页码值
+          this.page++
+        } else {
+          // 如果没有则改变finished的状态
           this.finished = true
         }
-      }, 1000)
+      } catch (err) {
+        this.$toast('获取搜索结果失败，请稍后重试')
+      }
     }
   }
 }
 </script>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+.searchResult{
+  .searchResultList{
+    height: 79vh;
+    overflow-y: auto;
+  }
+}
+</style>

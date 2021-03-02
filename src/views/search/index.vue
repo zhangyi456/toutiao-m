@@ -14,10 +14,10 @@
     </form>
     <!-- /搜索栏 -->
     <!-- 搜索的记录 -->
-    <search-result v-if="isResultShow"/>
+    <search-result v-if="isResultShow" :searchText = "searchText"/>
     <!-- 搜索的记录 -->
     <!-- 搜索建议 -->
-    <search-suggestion v-else-if="searchText"/>
+    <search-suggestion v-else-if="searchText" :searchText = "searchText" @search="onSearch"/>
     <!-- 搜索建议 -->
     <!-- 搜索历史纪录 -->
     <search-history v-else/>
@@ -50,6 +50,7 @@ export default {
   mounted() {},
   methods: {
     onSearch(val) {
+      this.searchText = val
       this.isResultShow = true
     },
     onCancel() {
@@ -64,5 +65,9 @@ export default {
   .van-search__action {
     color: #fff;
   }
+  // .van-search{
+
+  //   overflow-y:auto;
+  // }
 }
 </style>
