@@ -1,6 +1,16 @@
 <template>
   <van-cell-group class="article-item">
-    <van-cell>
+    <van-cell
+      :to="{
+        //根据动态路由的名称来跳转
+        name: 'articles',
+        //传递路由动态参数
+        params: {
+          // 属性名:路由路径中设计的动态参数
+          articleId: article.art_id
+        }
+      }"
+    >
       <div slot="title" class="title van-multi-ellipsis--l2">
         {{ article.title }}
       </div>
@@ -11,17 +21,13 @@
             v-for="(img, index) in article.cover.images"
             :key="index"
           >
-            <van-image
-              class="cover-item-img"
-              fit="cover"
-              :src="img"
-            />
+            <van-image class="cover-item-img" fit="cover" :src="img" />
           </div>
         </div>
         <div class="label-info-wrap">
           <span>{{ article.aut_name }}</span>
           <span>{{ article.comm_count }}评论</span>
-          <span>{{ article.pubdate | relativeTime}}</span>
+          <span>{{ article.pubdate | relativeTime }}</span>
         </div>
       </div>
       <van-image
