@@ -1,7 +1,12 @@
 <template>
   <div class="article-container">
     <!-- 导航栏 -->
-    <van-nav-bar class="page-nav-bar" left-arrow title="黑马头条" @click-left="$router.back()"></van-nav-bar>
+    <van-nav-bar
+      class="page-nav-bar"
+      left-arrow
+      title="黑马头条"
+      @click-left="$router.back()"
+    ></van-nav-bar>
     <!-- /导航栏 -->
 
     <div class="main-wrap">
@@ -31,24 +36,33 @@
             {{ articles.pubdate | relativeTime }}
           </div>
           <van-button
+            v-if="articles.is_followed"
+            class="follow-btn"
+            round
+            size="small"
+            @click="onFollow"
+            >已关注</van-button
+          >
+          <van-button
+            v-else
             class="follow-btn"
             type="info"
             color="#3296fa"
             round
             size="small"
             icon="plus"
+            @click="onFollow"
             >关注</van-button
           >
-          <!-- <van-button
-            class="follow-btn"
-            round
-            size="small"
-          >已关注</van-button> -->
         </van-cell>
         <!-- /用户信息 -->
 
         <!-- 文章内容 -->
-        <div class="article-content" v-html="articles.content"></div>
+        <div
+          class="article-content markdown-body"
+          v-html="articles.content"
+          ref="articles.content"
+        ></div>
         <van-divider>正文结束</van-divider>
       </div>
       <!-- /加载完成-文章详情 -->
@@ -85,6 +99,8 @@
 
 <script>
 import { getArticlesById } from '@/api/article'
+import { ImagePreview } from 'vant'
+import { addFollow, deleteFollow } from '@/api/user'
 export default {
   name: 'ArticleIndex',
   components: {},
@@ -118,6 +134,9 @@ export default {
         //   JSON.parse('huxasihjxiksahl')
         // }
         this.articles = data.data
+        setTimeout(() => {
+          this.PreviewImage()
+        }, 0)
       } catch (err) {
         // 这里判断失败的状态码
         if (err.response && err.response.status === 404) {
@@ -127,12 +146,50 @@ export default {
       }
       // 渲染结束以后不管成功与否都要结束loading状态
       this.loading = false
+    },
+    // 图片预览的方法
+    PreviewImage() {
+      const articleCount = this.$refs['articles.content']
+      const imgs = articleCount.querySelectorAll('img')
+      const images = []
+      imgs.forEach((img, index) => {
+        images.push(img.src)
+        img.onclick = () => {
+          ImagePreview({
+            images,
+            startPosition: index
+          })
+        }
+      })
+    },
+    // 关注用户的方法
+    async onFollow() {
+      try {
+        if (this.articles.is_followed) {
+          await deleteFollow(this.articles.aut_id)
+
+          // this.articles.is_followed = true
+        } else {
+          console.log(222)
+          console.log(this.articles.aut_id)
+          await addFollow(this.articles.aut_id)
+          // this.articles.is_followed = false
+        }
+        this.articles.is_followed = !this.articles.is_followed
+      } catch (err) {
+        let message = '操作失败，请稍后再试'
+        if (err.response && err.response.status === 400) {
+          message = '用户不能关注自己'
+        }
+        this.$toast(message)
+      }
     }
   }
 }
 </script>
 
 <style scoped lang="less">
+@import './github-markdown.css';
 .article-container {
   .main-wrap {
     position: fixed;
