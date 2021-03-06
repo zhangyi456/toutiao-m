@@ -35,25 +35,7 @@
           <div slot="label" class="publish-date">
             {{ articles.pubdate | relativeTime }}
           </div>
-          <van-button
-            v-if="articles.is_followed"
-            class="follow-btn"
-            round
-            size="small"
-            @click="onFollow"
-            >已关注</van-button
-          >
-          <van-button
-            v-else
-            class="follow-btn"
-            type="info"
-            color="#3296fa"
-            round
-            size="small"
-            icon="plus"
-            @click="onFollow"
-            >关注</van-button
-          >
+          <follow-item :articles="articles" />
         </van-cell>
         <!-- /用户信息 -->
 
@@ -84,13 +66,16 @@
     </div>
 
     <!-- 底部区域 -->
-    <div class="article-bottom">
+    <div class="article-bottom" v-if="articles.title">
       <van-button class="comment-btn" type="default" round size="small"
         >写评论</van-button
       >
       <van-icon name="comment-o" badge="123" color="#777" />
-      <van-icon color="#777" name="star-o" />
-      <van-icon color="#777" name="good-job-o" />
+      <collect-item
+        v-model="articles.is_collected"
+        :articleId="articles.art_id"
+      />
+      <like-item v-model="articles.attitude" :articleId="articles.art_id"/>
       <van-icon name="share" color="#777777"></van-icon>
     </div>
     <!-- /底部区域 -->
@@ -100,10 +85,16 @@
 <script>
 import { getArticlesById } from '@/api/article'
 import { ImagePreview } from 'vant'
-import { addFollow, deleteFollow } from '@/api/user'
+import FollowItem from '@/components/follow-item'
+import collectItem from '@/components/collect-item'
+import LikeItem from '@/components/like-item'
 export default {
   name: 'ArticleIndex',
-  components: {},
+  components: {
+    FollowItem,
+    collectItem,
+    LikeItem
+  },
   props: {
     articleId: {
       type: [Number, String, Object],
@@ -134,6 +125,7 @@ export default {
         //   JSON.parse('huxasihjxiksahl')
         // }
         this.articles = data.data
+        console.log(this.articles)
         setTimeout(() => {
           this.PreviewImage()
         }, 0)
@@ -161,28 +153,6 @@ export default {
           })
         }
       })
-    },
-    // 关注用户的方法
-    async onFollow() {
-      try {
-        if (this.articles.is_followed) {
-          await deleteFollow(this.articles.aut_id)
-
-          // this.articles.is_followed = true
-        } else {
-          console.log(222)
-          console.log(this.articles.aut_id)
-          await addFollow(this.articles.aut_id)
-          // this.articles.is_followed = false
-        }
-        this.articles.is_followed = !this.articles.is_followed
-      } catch (err) {
-        let message = '操作失败，请稍后再试'
-        if (err.response && err.response.status === 400) {
-          message = '用户不能关注自己'
-        }
-        this.$toast(message)
-      }
     }
   }
 }

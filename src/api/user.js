@@ -46,3 +46,37 @@ export const deleteFollow = target => {
     url: `/app/v1_0/user/followings/${target}`
   })
 }
+// 封装收藏文章的接口
+export const addCollect = target => {
+  return request({
+    method: 'POST',
+    url: '/app/v1_0/article/collections',
+    data: {
+      target
+    }
+  })
+}
+// 封装取消关注用户的接口
+export const deleteCollect = target => {
+  return request({
+    method: 'DELETE',
+    url: `/app/v1_0/article/collections/${target}`
+  })
+}
+// 封装点赞文章的接口
+export const addLike = target => {
+  return request({
+    method: 'POST',
+    url: '/app/v1_0/article/likings',
+    data: {
+      target
+    }
+  })
+}
+// 封装取消关注用户的接口
+export const deleteLike = target => {
+  return request({
+    method: 'DELETE',
+    url: `/app/v1_0/article/likings/${target}`
+  })
+}
